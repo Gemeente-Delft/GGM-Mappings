@@ -31,7 +31,7 @@ Door mappings op te stellen wordt duidelijk:
 - Zonder mapping is gegevensuitwisseling foutgevoelig en kostbaar: elke koppeling vraagt maatwerk.  
 - Met mappings ontstaat **een eenduidige vertaling** van leveranciersdata naar het GGM.  
 
-Dit levert voordelen op:  
+Dit levert de volgende voordelen op:  
 - **Herbruikbaarheid**: een mapping die één keer is opgesteld, kan door meerdere gemeenten en leveranciers worden gebruikt.  
 - **Kwaliteit**: door feedback uit de community worden mappings steeds vollediger en consistenter.  
 - **Efficiëntie**: mappings voorkomen dat elke gemeente of leverancier opnieuw dezelfde analyse moet uitvoeren.  

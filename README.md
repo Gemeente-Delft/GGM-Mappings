@@ -21,6 +21,7 @@ Een voorbeeld:
 | Inwoner        | Adres           | Tabel Adres        | citizen_address        | |
 
 Transformatie
+
 In veel gevallen is er een vorm van transformatie nodig om van de brondata te komen tot de vorm zoals gedefinieerd in het GGM.
 Het is belangrijk om die transformatie ook vast te leggen in het mappingsdocument.
 SQL kan een handig middel zijn om te laten zien wat zo'n transformatie inhoud. 

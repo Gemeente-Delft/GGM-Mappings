@@ -18,7 +18,7 @@ Een voorbeeld:
 | GGM-objecttype | GGM-attribuut   | Tabel in leverancierssysteem | Veldnaam in applicatie | Aanvullende logica
 |----------------|-----------------|---------------------|------------------------|---------------------|
 | Inwoner        | Geboortedatum   | Tabel Persoon       | birthDate              | Vertaal van YYYYMMDD naar DDMMYYYY |
-| Inwoner        | Adres           | Tabel Adres.        | citizen_address        | |
+| Inwoner        | Adres           | Tabel Adres        | citizen_address        | |
 
 Door mappings op te stellen wordt duidelijk:  
 - hoe gegevens uit verschillende systemen onderling te begrijpen zijn;  

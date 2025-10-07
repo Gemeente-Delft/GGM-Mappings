@@ -20,6 +20,13 @@ Een voorbeeld:
 | Inwoner        | Geboortedatum   | Tabel Persoon       | birthDate              | Vertaal van YYYYMMDD naar DDMMYYYY |
 | Inwoner        | Adres           | Tabel Adres        | citizen_address        | |
 
+Transformatie
+In veel gevallen is er een vorm van transformatie nodig om van de brondata te komen tot de vorm zoals gedefinieerd in het GGM.
+Het is belangrijk om die transformatie ook vast te leggen in het mappingsdocument.
+SQL kan een handig middel zijn om te laten zien wat zo'n transformatie inhoud. 
+Soms bevat de transformatie complexe logica en is dat moelijk in woorden uit te drukken en dan kan een voorbeeld in de vorm van SQL een goed middel zijn om dat te documenteren.
+Maar het kan ook beschrijvend.
+
 Door mappings op te stellen wordt duidelijk:  
 - hoe gegevens uit verschillende systemen onderling te begrijpen zijn;  
 - welke velden overeenkomen, maar soms anders heten of anders gestructureerd zijn;  

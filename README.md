@@ -20,7 +20,7 @@ Een voorbeeld:
 | Inwoner        | Geboortedatum   | Tabel Persoon       | birthDate              | Vertaal van YYYYMMDD naar DDMMYYYY |
 | Inwoner        | Adres           | Tabel Adres        | citizen_address        | |
 
-##Transformatie
+## Transformatie
 
 In veel gevallen is er een vorm van transformatie nodig om van de brondata te komen tot de vorm zoals gedefinieerd in het GGM.
 Het is belangrijk om die transformatie ook vast te leggen in het mappingsdocument.

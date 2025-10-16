@@ -5,7 +5,7 @@
 ---
 
 Welkom bij de GGM-MappingsRepository.
-In deze repository verzamelen en beheren we mappings tussen het [Gemeentelijk Gegevensmodel (GGM)](www.gemeentelijkgegevensmodel.nl) en de gegevensstructuren van leverancierssystemen.
+In deze repository verzamelen en beheren we mappings tussen het [Gemeentelijk Gegevensmodel (GGM)](https://www.gemeentelijkgegevensmodel.nl) en de gegevensstructuren van leverancierssystemen.
 
 Het doel is om gezamenlijk te werken aan een gedeelde en herbruikbare set mappings, zodat gegevens eenduidig uitwisselbaar worden tussen gemeenten en hun leveranciers.
 

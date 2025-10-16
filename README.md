@@ -1,6 +1,6 @@
 # Gemeentelijk Gegevensmodel – Mappings
 
-**Deze repository is nog in ontwikkeling kijk voor de reeds bestaande mappings op de [WieWatStatus-lijst](https://wiewatstatus.web.app/)**
+**Deze repository is nog in ontwikkeling, kijk voor de reeds bestaande mappings op de [WieWatStatus-lijst](https://wiewatstatus.web.app/)**
 
 ---
 
@@ -24,8 +24,8 @@ Een voorbeeld:
 
 In veel gevallen is er een vorm van transformatie nodig om van de brondata te komen tot de vorm zoals gedefinieerd in het GGM.
 Het is belangrijk om die transformatie ook vast te leggen in het mappingsdocument.
-SQL kan een handig middel zijn om te laten zien wat zo'n transformatie inhoud. 
-Soms bevat de transformatie complexe logica en is dat moelijk in woorden uit te drukken en dan kan een voorbeeld in de vorm van SQL een goed middel zijn om dat te documenteren.
+SQL kan een handig middel zijn om te laten zien wat zo'n transformatie inhoudt. 
+Soms bevat de transformatie complexe logica en is dat moeilijk in woorden uit te drukken en dan kan een voorbeeld in de vorm van SQL een goed middel zijn om dat te documenteren.
 Maar het kan ook beschrijvend.
 
 Door mappings op te stellen wordt duidelijk:  
@@ -50,12 +50,12 @@ Dit levert de volgende voordelen op:
 De mappings zijn georganiseerd volgens de volgende structuur:
 
 ```
-mappings/GGM-Domein/GGM-Deeldomein/Leveranciersysteem/
+mappings/GGM-Domein/GGM-Deeldomein/Leverancierssysteem/
 ```
 
 - **GGM-Domein**: het hoofdonderdeel van het Gemeentelijk Gegevensmodel waar de mapping betrekking op heeft.
 - **Deeldomein**: een specifiek deelgebied binnen het domein, bijvoorbeeld onder sociaal domein: Wmo, Schulden, Inkomen.
-- **Leveranciersysteem**: de naam van het leverancierssysteem waarvan de data wordt gemapt.
+- **Leverancierssysteem**: de naam van het leverancierssysteem waarvan de data wordt gemapt.
 
 In elke map bevindt zich minimaal:
 

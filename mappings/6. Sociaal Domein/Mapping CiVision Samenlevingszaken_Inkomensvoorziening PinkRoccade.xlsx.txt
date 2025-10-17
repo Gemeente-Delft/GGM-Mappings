@@ -1,0 +1,194 @@
+/****** Object:  View [RLDM].[VW_Inkomensvoorziening]    Script Date: 22-7-2025 11:07:29 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+create   view [RLDM].[VW_Inkomensvoorziening] as
+
+/* =============================================
+Naam:           RLDM.Inkomensvoorziening
+Omschrijving:   De toekenning van een specifieke inkomensvoorzieningSoort aan een specfieke Client
+Historie:
+28-12-2023  Karin Andreas:
+- TOZO uitsluiten -> sdbbz_.cod_bbzcla != 7
+- studietoeslagen uitsluiten -> sdwwb_.ind_studie is null 
+- De code regeling is BBZ én de aanvangsdatum uitkering is gelijk aan de einddatum uitkering 
+  én de vorm uiktering is "om niet stelling".
+
+15-11-2023  JvdP:   eerste oplevering
+18-10-2024	Roel Meesters:	Studietoeslag weer opgenomen, nodig tbv Caseload en kan later in derived voor andere doeleinden worden uitgefilterd  
+Functionele beschrijving:
+13-11-2024	Roel Meesters:	Naamgeving aangepast naar conventies en opmaak gestructureerd	
+14-02-2025  Roel Meesters:  Aanpassingen nieuw GGM 2.2 verwerkt
+ 
+==============================================
+*/
+select
+ concat(		[wwb].[COD_REGEL], '.',
+cast(cast(	[wwb].[NUM_UITK] as bigint) as nvarchar(20)))       as 	[inkomensvoorziening_ID]
+,cast(			null as numeric(18,5))             		        as 	[bedrag]
+,cast(			[wwb].[COD_REGEL] as nvarchar(20))              as 	[inkomensvoorzieningsoort_ID]
+,convert(		datetime2, [wwb].[DAT_INGANG] ,120)             as 	[datumStart] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [wwb].[DAT_EINDE] ,120)              as 	[datumEinde] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, null ,120)                       	as 	[datumToekenning] 					-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [wwb].[DAT_INADM] ,120)              as 	[administratieveStartdatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [wwb].[DAT_UITADM] ,120)             as 	[administratieveEinddatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			null as nvarchar(100))                      	as 	[groep]
+,cast(cast(	[wwb].[NUM_PERS]  as bigint) as nvarchar(20))	    as 	[client_ID]
+,cast(cast(	[wwb].[NUM_PARTN] as bigint) as nvarchar(20))       as 	[clientPartner_ID]
+,cast(			null as nvarchar(20))                       	as 	[medewerker_ID]
+,cast(			[wwb].[COD_REDEN] as nvarchar(4))              	as 	[redenAanvraag_ID]
+,cast(			[wwb].[COD_REDENP] as nvarchar(4))              as 	[redenAanvraagPartner_ID]
+,cast(			[wwb].[COD_STOP] as nvarchar(4))              	as 	[redenUitstroom_ID]
+,cast(			[wwb].[COD_STOPP] as nvarchar(4))              	as 	[redenUitstroomPartner_ID]
+,cast(			[wwb].[COD_HUISV] as nvarchar(4))              	as 	[soortHuisvesting_ID]
+,cast(			[wwb].[COD_HUISVP] as nvarchar(4))              as 	[soortHuisvestingPartner_ID]
+,cast(			[wwb].[COD_SRTWWB] as nvarchar(4))              as 	[verstrekkingsvorm]
+,case 	when		wwbb.DAT_VBLOK > CURRENT_TIMESTAMP then										'Toekomstige blokkade'
+	 	when			wwbb.DAT_VBLOK < CURRENT_TIMESTAMP and wwbb.COD_BLOK is not null then	'Lopende blokkade'
+	 	else																					'Geen blokkade'				end as indicatieBlokkering
+,cast(			[wwbb].[COD_BLOK] as nvarchar(4))               	as 	[redenBlokkering_ID]
+,cast(			[wwb].[IND_SPEC] as nvarchar(1))               	as 	[indicatieUitkeringSpecificatie]
+,convert(		datetime2, [wwb].[DAT_VERW] ,120)               as 	[VerwerktTotEnMetDatum] 				-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			[wwb].[IND_SPLITS] as nvarchar(1))              as 	[indicatieUitkeringSplitsen]
+,cast(			[wwb].[IND_STUDIE] as nvarchar(1))              as 	[indicatieStudietoeslag]
+,cast(			null as nvarchar(20))                           as 	[betalingsmomentcode]
+,cast(			null as nvarchar(20))                           as 	[eenmalig]
+
+from   		  [Civision_Samenlevingszaken].[SDWWB_]  		    as	[wwb]
+left join	  (
+			SELECT  NUM_UITK,COD_BLOK,DAT_VBLOK, DAT_TBLOK
+			FROM [Civision_Samenlevingszaken].[SDWWB_BLOK]  
+			WHERE DAT_TBLOK IS NULL ) wwbb
+ON wwbb.NUM_UITK = wwb.NUM_UITK
+
+UNION
+
+select
+ concat(		[iow].[COD_REGEL], '.',
+cast(cast(	[iow].[NUM_UITK] as bigint) as nvarchar(20)))       as 	[inkomensvoorziening_ID]
+,cast(			null as numeric(18,5))             		        as 	[bedrag]
+,cast(			[iow].[COD_REGEL] as nvarchar(20))              as 	[inkomensvoorzieningsoort_ID]
+,convert(		datetime2, [iow].[DAT_INGANG] ,120)             as 	[datumStart] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [iow].[DAT_EINDE] ,120)              as 	[datumEinde] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, null ,120)                       	as 	[datumToekenning] 					-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [iow].[DAT_INADM] ,120)              as 	[administratieveStartdatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [iow].[DAT_UITADM] ,120)             as 	[administratieveEinddatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			null as nvarchar(100))                      	as 	[groep]
+,cast(cast(	[iow].[NUM_PERS]  as bigint) as nvarchar(20))	    as 	[client_ID]
+,cast(cast(	[iow].[NUM_PARTN] as bigint) as nvarchar(20))       as 	[clientPartner_ID]
+,cast(			null as nvarchar(20))                       	as 	[medewerker_ID]
+,cast(			[iow].[COD_REDEN] as nvarchar(4))              	as 	[redenAanvraag_ID]
+,cast(			[iow].[COD_REDENP] as nvarchar(4))              as 	[redenAanvraagPartner_ID]
+,cast(			[iow].[COD_STOP] as nvarchar(4))              	as 	[redenUitstroom_ID]
+,cast(			[iow].[COD_STOPP] as nvarchar(4))              	as 	[redenUitstroomPartner_ID]
+,cast(			[iow].[COD_HUISV] as nvarchar(4))              	as 	[soortHuisvesting_ID]
+,cast(			[iow].[COD_HUISVP] as nvarchar(4))              as 	[soortHuisvestingPartner_ID]
+,cast(			[iow].[COD_SRTIOW] as nvarchar(4))              as 	[verstrekkingsvorm]
+,case 	when		iowb.DAT_VBLOK > CURRENT_TIMESTAMP then										'Toekomstige blokkade'
+	 	when		iowb.DAT_VBLOK < CURRENT_TIMESTAMP and iowb.COD_BLOK is not null then		'Lopende blokkade'
+	 	else																					'Geen blokkade'				end as indicatieBlokkering
+,cast(			[iowb].[COD_BLOK] as nvarchar(4))               	as 	[redenBlokkering_ID]
+,cast(			[iow].[IND_SPEC] as nvarchar(1))               	as 	[indicatieUitkeringSpecificatie]
+,convert(		datetime2, [iow].[DAT_VERW] ,120)               as 	[VerwerktTotEnMetDatum] 				-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			[iow].[IND_SPLITS] as nvarchar(1))              as 	[indicatieUitkeringSplitsen]
+,cast(			null as nvarchar(1))              as 	[indicatieStudietoeslag]
+,cast(			null as nvarchar(20))                           as 	[betalingsmomentcode]
+,cast(			null as nvarchar(20))                           as 	[eenmalig]
+
+from   		  [Civision_Samenlevingszaken].[SDIOW_]  	        as	[iow]
+left join	  (
+			SELECT  NUM_UITK,COD_BLOK,DAT_VBLOK,DAT_TBLOK
+			FROM [Civision_Samenlevingszaken].[SDIOW_BLOK]  
+			WHERE DAT_TBLOK IS NULL ) iowb
+ON iowb.NUM_UITK = iow.NUM_UITK
+
+UNION
+
+select
+ concat(		[ioz].[COD_REGEL], '.',
+cast(cast(	[ioz].[NUM_UITK] as bigint) as nvarchar(20)))       as 	[inkomensvoorziening_ID]
+,cast(			null as numeric(18,5))             		        as 	[bedrag]
+,cast(			[ioz].[COD_REGEL] as nvarchar(20))              as 	[inkomensvoorzieningsoort_ID]
+,convert(		datetime2, [ioz].[DAT_INGANG] ,120)             as 	[datumStart] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [ioz].[DAT_EINDE] ,120)              as 	[datumEinde] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, null ,120)                       	as 	[datumToekenning] 					-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [ioz].[DAT_INADM] ,120)              as 	[administratieveStartdatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [ioz].[DAT_UITADM] ,120)             as 	[administratieveEinddatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			null as nvarchar(100))                      	as 	[groep]
+,cast(cast(	[ioz].[NUM_PERS]  as bigint) as nvarchar(20))	    as 	[client_ID]
+,cast(cast(	[ioz].[NUM_PARTN] as bigint) as nvarchar(20))       as 	[clientPartner_ID]
+,cast(			null as nvarchar(20))                       	as 	[medewerker_ID]
+,cast(			[ioz].[COD_REDEN] as nvarchar(4))              	as 	[redenAanvraag_ID]
+,cast(			[ioz].[COD_REDENP] as nvarchar(4))              as 	[redenAanvraagPartner_ID]
+,cast(			[ioz].[COD_STOP] as nvarchar(4))              	as 	[redenUitstroom_ID]
+,cast(			[ioz].[COD_STOPP] as nvarchar(4))              	as 	[redenUitstroomPartner_ID]
+,cast(			[ioz].[COD_HUISV] as nvarchar(4))              	as 	[soortHuisvesting_ID]
+,cast(			[ioz].[COD_HUISVP] as nvarchar(4))              as 	[soortHuisvestingPartner_ID]
+,cast(			[ioz].[COD_SRTIOZ] as nvarchar(4))              as 	[verstrekkingsvorm]
+,case 	when		iozb.DAT_VBLOK > CURRENT_TIMESTAMP then										'Toekomstige blokkade'
+	 	when		iozb.DAT_VBLOK < CURRENT_TIMESTAMP and iozb.COD_BLOK is not null then		'Lopende blokkade'
+	 	else																					'Geen blokkade'				end as indicatieBlokkering
+,cast(			[iozb].[COD_BLOK] as nvarchar(4))               	as 	[redenBlokkering_ID]
+,cast(			[ioz].[IND_SPEC] as nvarchar(1))               	as 	[indicatieUitkeringSpecificatie]
+,convert(		datetime2, [ioz].[DAT_VERW] ,120)               as 	[VerwerktTotEnMetDatum] 				-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			[ioz].[IND_SPLITS] as nvarchar(1))              as 	[indicatieUitkeringSplitsen]
+,cast(			null as nvarchar(1))                            as 	[indicatieStudietoeslag]
+,cast(			null as nvarchar(20))                           as 	[betalingsmomentcode]
+,cast(			null as nvarchar(20))                           as 	[eenmalig]
+
+from   		[Civision_Samenlevingszaken].[SDIOZ_]  		        as 	[ioz]
+left join	  (
+			SELECT  NUM_UITK,COD_BLOK,DAT_VBLOK,DAT_TBLOK
+			FROM [Civision_Samenlevingszaken].[SDIOZ_BLOK]  
+			WHERE DAT_TBLOK IS NULL ) iozb
+ON iozb.NUM_UITK = ioz.NUM_UITK
+
+UNION
+
+select
+ concat(		[bbz].[COD_REGEL], '.',
+cast(cast(	[bbz].[NUM_UITK] as bigint) as nvarchar(20)))       as 	[inkomensvoorziening_ID]
+,cast(			null as numeric(18,5))             		        as 	[bedrag]
+,cast(			[bbz].[COD_REGEL] as nvarchar(20))              as 	[inkomensvoorzieningsoort_ID]
+,convert(		datetime2, [bbz].[DAT_INGANG] ,120)             as 	[datumStart] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [bbz].[DAT_EINDE] ,120)              as 	[datumEinde] 						-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, null ,120)                       	as 	[datumToekenning] 					-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [bbz].[DAT_INADM] ,120)              as 	[administratieveStartdatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,convert(		datetime2, [bbz].[DAT_UITADM] ,120)             as 	[administratieveEinddatum] 			-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			null as nvarchar(100))                      	as 	[groep]
+,cast(cast(	[bbz].[NUM_PERS]  as bigint) as nvarchar(20))	    as 	[client_ID]
+,cast(cast(	[bbz].[NUM_PARTN] as bigint) as nvarchar(20))       as 	[clientPartner_ID]
+,cast(			null as nvarchar(20))                       	as 	[medewerker_ID]
+,cast(			[bbz].[COD_REDEN] as nvarchar(4))              	as 	[redenAanvraag_ID]
+,cast(			[bbz].[COD_REDENP] as nvarchar(4))              as 	[redenAanvraagPartner_ID]
+,cast(			[bbz].[COD_STOP] as nvarchar(4))              	as 	[redenUitstroom_ID]
+,cast(			[bbz].[COD_STOPP] as nvarchar(4))              	as 	[redenUitstroomPartner_ID]
+,cast(			[bbz].[COD_HUISV] as nvarchar(4))              	as 	[soortHuisvesting_ID]
+,cast(			[bbz].[COD_HUISVP] as nvarchar(4))              as 	[soortHuisvestingPartner_ID]
+,cast(			[bbz].[COD_SRTBBZ] as nvarchar(4))              as 	[verstrekkingsvorm]
+,case 	when		bbzb.DAT_VBLOK > CURRENT_TIMESTAMP then										'Toekomstige blokkade'
+	 	when		bbzb.DAT_VBLOK < CURRENT_TIMESTAMP and bbzb.COD_BLOK is not null then		'Lopende blokkade'
+	 	else																					'Geen blokkade'				end as indicatieBlokkering
+,cast(			[bbzb].[COD_BLOK] as nvarchar(4))               	as 	[redenBlokkering_ID]
+,cast(			[bbz].[IND_SPEC] as nvarchar(1))               	as 	[indicatieUitkeringSpecificatie]
+,convert(		datetime2, [bbz].[DAT_VERW] ,120)               as 	[VerwerktTotEnMetDatum] 				-- Let op de juiste "style", 120 is voor een string met een datum in het formaat 'yyyy-mm-dd hh24:mi:ss'
+,cast(			[bbz].[IND_SPLITS] as nvarchar(1))              as 	[indicatieUitkeringSplitsen]
+,cast(			null as nvarchar(1))              				as 	[indicatieStudietoeslag]
+,cast(			null as nvarchar(20))                           as 	[betalingsmomentcode]
+,cast(			null as nvarchar(20))                           as 	[eenmalig]
+
+from   		[Civision_Samenlevingszaken].[SDBBZ_]	            as 	[bbz]
+left join	  (
+			SELECT  NUM_UITK,COD_BLOK,DAT_VBLOK,DAT_TBLOK
+			FROM [Civision_Samenlevingszaken].[SDBBZ_BLOK]  
+			WHERE DAT_TBLOK IS NULL ) bbzb
+ON bbzb.NUM_UITK = bbz.NUM_UITK
+where  		[bbz].[COD_BBZCLA] != '7'
+and(			[bbz].[COD_REDEN] != 'OMNI' 			                  or 	[bbz].[DAT_INADM] != [bbz].[DAT_UITADM])
+;
+GO
+
+

@@ -2,7 +2,7 @@
 Centric Suite Sociaal Domein - Sociaal Domein
 
 ## Beschrijving
-Korte toelichting op de mapping.
+De eerste versie van deze mapping wordt door de gemeente Delft aan Centric ter review aangeboden.
 
 ## Versie en status
 - Versie: 0.1  

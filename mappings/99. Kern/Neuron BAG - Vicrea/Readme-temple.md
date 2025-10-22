@@ -8,7 +8,7 @@ De eerste versie van deze mapping wordt door de gemeente Delft aan Vicrea ter re
 - Versie: 0.1  
 - Datum:20/10/2025
 - Status: Concept 
-- GM-versie: 2.4.0
+- GGM-versie: 2.4.0
 
 ## Contact en betrokkenen
 - Gemeente(n):Delft 

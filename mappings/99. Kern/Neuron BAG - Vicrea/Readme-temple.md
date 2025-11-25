@@ -18,6 +18,7 @@ De eerste versie van deze mapping wordt door de gemeente Delft aan Vicrea ter re
 Het gebruik van deze mapping dient te geschieden in lijn met het co-creatieproces.
 
 ## Wijzigingen
-| Versie | Datum       | Wijzigingen                  |
-|--------|-------------|-----------------------------|
-|    0.1  20/10/2025    Eerste versie  |             |                             |
+| Versie | Datum       | Wijzigingen        | Opsteller |
+|--------|-------------|--------------------|-----------|
+| 0.1    | 20/10/2025  | eerste versie      | Maarten-Jan Kampen    |
+
